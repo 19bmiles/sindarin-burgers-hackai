@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, createContext, useState, useCallback } from "react";
 import PersonaComponent from "./components/Persona";
-import WebsocketComponent from "./components/WebsocketComponent";
 import ItemSection from "./components/ItemSection"
 import friesImg from "./assets/fries.png";
 import waterImg from "./assets/bottled_water.png";
@@ -246,7 +245,6 @@ function App() {
           {isPersonaClientStarted ? "Persona Client Started" : "Start Persona Client"}
         </motion.button>
         <PersonaComponent init={isPersonaClientStarted}/>
-        <WebsocketComponent />
         <div style={{ marginTop: '80px' }}>
           { mains.some(item => item.quantity > 0) ? (
             <div className="image-container">
