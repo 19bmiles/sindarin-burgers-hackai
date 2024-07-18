@@ -9,10 +9,11 @@ To run this project locally, follow these steps:
    npm install
    ```
 
-2. Start the development server:
+2. Replace the "[CLIENT-KEY-HERE]" in src/components/Persona.jsx with your client key from the Persona Webapp.
+
+3. Start the development server:
    ```
    npm run dev
    ```
 
 This will start the Vite development server and you can view the application in your browser.
-
