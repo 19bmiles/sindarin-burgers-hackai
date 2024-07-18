@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+.app {
+  text-align: center;
+  max-width: 60rem;
+  margin: 0 auto;
+}
+
+/* Button Filters */
+.button-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 4rem;
+}
+
+.button-wrapper > button {
+  height: 2rem;
+  padding: 0 1rem;
+  cursor: pointer;
+  border: none;
+}
+
+.button-wrapper > button.active {
+  background: black;
+  color: white;
+}
+
+/* Image */
+/* .image-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+.image-container > .image-card {
+  color: white;
+  border-radius: 5px;
+  position: relative;
+  height: 15rem;
+}
+.image-card img {
+  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.image-card h2 {
+  position: absolute;
+  bottom: 0;
+  left: 1rem;
+  font-size: 1rem;
+  text-shadow: 2px 2px black;
+} */
+
+/* Image */
+.image-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0.2rem;
+  margin-top: 2rem;
+}
+.image-card {
+  color: black; /* Change text color to black */
+  border-radius: 5px;
+  position: relative;
+  display: flex;
+  gap: 1rem; /* Reduce gap */
+  height: auto;
+  width: 500px;
+  align-items: start; /* Align items to the start */
+  justify-content: flex-start; /* Align items to the start */
+}
+
+
+.image-card .image-part {
+  width: 35%; /* decrease the size of image */
+  height: auto; /* let the height adapt to its content */
+}
+
+.image-card .info-part {
+  text-align: left;
+}
+
+.image-part img {
+  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.info-part h2 {
+  font-size: 1.2rem; /* Decrease font-size */
+  margin-bottom: 0.5rem;
+}
+
+.info-part p {
+  font-size: 0.9rem; /* Decrease font-size */
+}
