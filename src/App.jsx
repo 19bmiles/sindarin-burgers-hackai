@@ -35,13 +35,41 @@ const itemsMap = {
     taters: { name: 'Taters', image: tatersImg, price: 3.99 },
   },
   drinks: {
-    cola: { name: 'Cola', image: drinkImg, price: 1.99 },
-    diet_cola: { name: 'Diet Cola', image: drinkImg, price: 1.99 },
-    sprite: { name: 'Sprite', image: spriteImg, price: 1.99 },
-    water: { name: 'Water', image: waterImg, price: 1.49 },
-    chocolate_milkshake: { name: 'Chocolate Milkshake', image: chocolateMilkshakeImg, price: 3.99 },
-    strawberry_milkshake: { name: 'Strawberry Milkshake', image: strawberryMilkshakeImg, price: 3.99 },
-    vanilla_milkshake: { name: 'Vanilla Milkshake', image: vanillaMilkshakeImg, price: 3.99 },
+    cola: {
+      small: { name: 'Small Cola', image: drinkImg, price: 1.99 },
+      medium: { name: 'Medium Cola', image: drinkImg, price: 2.49 },
+      large: { name: 'Large Cola', image: drinkImg, price: 2.99 }
+    },
+    diet_cola: {
+      small: { name: 'Small Diet Cola', image: drinkImg, price: 1.99 },
+      medium: { name: 'Medium Diet Cola', image: drinkImg, price: 2.49 },
+      large: { name: 'Large Diet Cola', image: drinkImg, price: 2.99 }
+    },
+    sprite: {
+      small: { name: 'Small Sprite', image: spriteImg, price: 1.99 },
+      medium: { name: 'Medium Sprite', image: spriteImg, price: 2.49 },
+      large: { name: 'Large Sprite', image: spriteImg, price: 2.99 }
+    },
+    water: {
+      small: { name: 'Small Water', image: waterImg, price: 1.49 },
+      medium: { name: 'Medium Water', image: waterImg, price: 1.99 },
+      large: { name: 'Large Water', image: waterImg, price: 2.49 }
+    },
+    chocolate_milkshake: {
+      small: { name: 'Small Chocolate Milkshake', image: chocolateMilkshakeImg, price: 3.99 },
+      medium: { name: 'Medium Chocolate Milkshake', image: chocolateMilkshakeImg, price: 4.99 },
+      large: { name: 'Large Chocolate Milkshake', image: chocolateMilkshakeImg, price: 5.99 }
+    },
+    strawberry_milkshake: {
+      small: { name: 'Small Strawberry Milkshake', image: strawberryMilkshakeImg, price: 3.99 },
+      medium: { name: 'Medium Strawberry Milkshake', image: strawberryMilkshakeImg, price: 4.99 },
+      large: { name: 'Large Strawberry Milkshake', image: strawberryMilkshakeImg, price: 5.99 }
+    },
+    vanilla_milkshake: {
+      small: { name: 'Small Vanilla Milkshake', image: vanillaMilkshakeImg, price: 3.99 },
+      medium: { name: 'Medium Vanilla Milkshake', image: vanillaMilkshakeImg, price: 4.99 },
+      large: { name: 'Large Vanilla Milkshake', image: vanillaMilkshakeImg, price: 5.99 }
+    },
   },
 };
 
@@ -90,25 +118,14 @@ function App() {
         { ...itemsMap.sides.taters, id: 'taters', size: 'medium', quantity: 0 }
       ];
 
-  const initialDrinks = usePopulatedInitialState
-    ? [
-        { ...itemsMap.drinks.cola, id: 'cola', size: 'medium', quantity: 2 },
-        { ...itemsMap.drinks.diet_cola, id: 'diet_cola', size: 'medium', quantity: 1 },
-        { ...itemsMap.drinks.sprite, id: 'sprite', size: 'medium', quantity: 0 },
-        { ...itemsMap.drinks.water, id: 'water', size: 'medium', quantity: 1 },
-        { ...itemsMap.drinks.chocolate_milkshake, id: 'chocolate_milkshake', size: 'medium', quantity: 0 },
-        { ...itemsMap.drinks.strawberry_milkshake, id: 'strawberry_milkshake', size: 'medium', quantity: 0 },
-        { ...itemsMap.drinks.vanilla_milkshake, id: 'vanilla_milkshake', size: 'medium', quantity: 0 }
-      ]
-    : [
-        { ...itemsMap.drinks.cola, id: 'cola', size: 'medium', quantity: 0 },
-        { ...itemsMap.drinks.diet_cola, id: 'diet_cola', size: 'medium', quantity: 0 },
-        { ...itemsMap.drinks.sprite, id: 'sprite', size: 'medium', quantity: 0 },
-        { ...itemsMap.drinks.water, id: 'water', size: 'medium', quantity: 0 },
-        { ...itemsMap.drinks.chocolate_milkshake, id: 'chocolate_milkshake', size: 'medium', quantity: 0 },
-        { ...itemsMap.drinks.strawberry_milkshake, id: 'strawberry_milkshake', size: 'medium', quantity: 0 },
-        { ...itemsMap.drinks.vanilla_milkshake, id: 'vanilla_milkshake', size: 'medium', quantity: 0 }
-      ];
+  const initialDrinks = Object.entries(itemsMap.drinks).flatMap(([drinkType, sizes]) =>
+    Object.entries(sizes).map(([size, details]) => ({
+      ...details,
+      id: drinkType,
+      size,
+      quantity: 0
+    }))
+  ); 
   const [mains, setMains] = useState(initialMains);
   const [sides, setSides] = useState(initialSides);
   const [drinks, setDrinks] = useState(initialDrinks);

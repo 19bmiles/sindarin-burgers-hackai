@@ -42,7 +42,7 @@ const ItemSection = ({ type }) => {
           {items.filter(item => item.quantity > 0).map(item => (
             <motion.div
               className="image-card"
-              key={item.name}
+              key={`${item.id}-${item.size || ''}`}
               layout
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

@@ -39,7 +39,8 @@ Welcome to the Sindarin Burgers project for HackAI! In this workshop, you'll enh
 4. Update the API key:
 
    - Open `src/components/Persona.jsx`
-   - Replace `"d4e5875d-0e08-4996-b04e-c40f7a661b17"` with your Sindarin API key
+   - Create a .env file and create an ENV variable called "VITE_SINDARIN_API_KEY"
+   - Set the env variables value to your Sindarin API key
 
 5. Start the development server:
    ```
@@ -130,70 +131,90 @@ By understanding these components and how they interact, you'll be better equipp
 
 ### 1. Adding More Drink Sizes
 
-In this section, we'll enhance the drink ordering system by allowing customers to specify the size of their drinks. This feature improves the user experience by providing more options and customization for drink orders.
-
-Update `src/persona/actions.js`:
-
-```javascript
-"drinks": {
-  "type": "array",
-  "items": {
-    "type": "object",
-    "properties": {
-      "drink_type": {
-        "type": "string",
-        "enum": ["cola", "diet_cola", "sprite", "water", "chocolate_milkshake", "strawberry_milkshake", "vanilla_milkshake"]
-      },
-      "size": {
-        "type": "string",
-        "enum": ["small", "medium", "large"]
-      },
-      "quantity": {
-        "type": "integer"
-      }
-    },
-    "required": ["drink_type", "size", "quantity"]
-  }
-}
-```
+In this section, we'll enhance the drink ordering system by allowing customers to specify the size of their drinks. This feature improves the user experience by providing more options and customization for drink orders. There already is a reference to drinks sizes in `actions.js` and in the `handleAction` function in `Persona.jsx`. So our changes here should be fairly easy.
 
 Update `src/App.jsx`:
 
+1. Modify the `itemsMap` for drinks to include sizes:
+
 ```javascript
-// Modify itemsMap to include different sizes for drinks
 drinks: {
   cola: {
     small: { name: 'Small Cola', image: drinkImg, price: 1.99 },
     medium: { name: 'Medium Cola', image: drinkImg, price: 2.49 },
     large: { name: 'Large Cola', image: drinkImg, price: 2.99 }
   },
-  // ... repeat for other drink types ...
+  diet_cola: {
+    small: { name: 'Small Diet Cola', image: drinkImg, price: 1.99 },
+    medium: { name: 'Medium Diet Cola', image: drinkImg, price: 2.49 },
+    large: { name: 'Large Diet Cola', image: drinkImg, price: 2.99 }
+  },
+  sprite: {
+    small: { name: 'Small Sprite', image: spriteImg, price: 1.99 },
+    medium: { name: 'Medium Sprite', image: spriteImg, price: 2.49 },
+    large: { name: 'Large Sprite', image: spriteImg, price: 2.99 }
+  },
+  water: {
+    small: { name: 'Small Water', image: waterImg, price: 1.49 },
+    medium: { name: 'Medium Water', image: waterImg, price: 1.99 },
+    large: { name: 'Large Water', image: waterImg, price: 2.49 }
+  },
+  chocolate_milkshake: {
+    small: { name: 'Small Chocolate Milkshake', image: chocolateMilkshakeImg, price: 3.99 },
+    medium: { name: 'Medium Chocolate Milkshake', image: chocolateMilkshakeImg, price: 4.99 },
+    large: { name: 'Large Chocolate Milkshake', image: chocolateMilkshakeImg, price: 5.99 }
+  },
+  strawberry_milkshake: {
+    small: { name: 'Small Strawberry Milkshake', image: strawberryMilkshakeImg, price: 3.99 },
+    medium: { name: 'Medium Strawberry Milkshake', image: strawberryMilkshakeImg, price: 4.99 },
+    large: { name: 'Large Strawberry Milkshake', image: strawberryMilkshakeImg, price: 5.99 }
+  },
+  vanilla_milkshake: {
+    small: { name: 'Small Vanilla Milkshake', image: vanillaMilkshakeImg, price: 3.99 },
+    medium: { name: 'Medium Vanilla Milkshake', image: vanillaMilkshakeImg, price: 4.99 },
+    large: { name: 'Large Vanilla Milkshake', image: vanillaMilkshakeImg, price: 5.99 }
+  },
 },
+```
 
-// Update handleAddDrinks and handleSubtractDrinks functions to handle sizes
-const handleAddDrinks = (drink_type, size, quantity) => {
-  // This function now takes a 'size' parameter
-  updateItemQuantity(drinks, setDrinks, drink_type, size, quantity);
-};
+2. Update the `initialDrinks` state to match the new structure:
 
-const handleSubtractDrinks = (drink_type, size, quantity) => {
-  // This function now takes a 'size' parameter
-  updateItemQuantity(drinks, setDrinks, drink_type, size, -quantity);
-};
+```javascript
+const initialDrinks = Object.entries(itemsMap.drinks).flatMap(([drinkType, sizes]) =>
+  Object.entries(sizes).map(([size, details]) => ({
+    ...details,
+    id: drinkType,
+    size,
+    quantity: 0
+  }))
+);
+```
+
+Update `src/components/ItemSection.jsx`:
+
+3. Modify the key for the `motion.div` to include the size:
+
+```jsx
+<motion.div
+  className="image-card"
+  key={`${item.id}-${item.size || ''}`}
+  // ... rest of the motion.div properties
+>
+  {/* ... rest of the component code */}
+</motion.div>
 ```
 
 #### Testing Your Changes
-
 1. Start your development server (`npm run dev`).
 2. Open the application in your browser.
 3. Try ordering drinks with different sizes using voice commands or text input.
 4. Verify that the order summary correctly displays the drink sizes and updates the total price accordingly.
 
 #### Common Pitfalls
-
-- Ensure that the `size` parameter is correctly passed through all relevant functions.
-- Check that the pricing for different sizes is correctly defined in the `itemsMap`.
+- Ensure that all drink types in the `itemsMap` have small, medium, and large sizes defined.
+- Check that the `initialDrinks` state is correctly set using the new structure.
 - Verify that the AI model is trained to recognize and process size-related commands for drinks.
+
 
 ### 2. Adding Gluten-Free Options
 
