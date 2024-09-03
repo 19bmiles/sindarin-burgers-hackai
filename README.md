@@ -39,7 +39,7 @@ Welcome to the Sindarin Burgers project for HackAI! In this workshop, you'll enh
 4. Update the API key:
 
    - Open `src/components/Persona.jsx`
-   - Replace `"d4e5875d-0e08-4996-b04e-c40f7a661b17"` with your Sindarin API key
+   - Replace `"XXXXXXX"` with your Sindarin API key
 
 5. Start the development server:
    ```
