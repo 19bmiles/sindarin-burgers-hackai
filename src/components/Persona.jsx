@@ -29,7 +29,7 @@ const PersonaComponent = ({ init }) => {
     initCalledRef.current = true;
 
     console.log("init persona client");
-    const apiKey = "[CLIENT-KEY-HERE]";
+    const apiKey = import.meta.env.VITE_SINDARIN_API_KEY;
     const client = new PersonaClientSDK(apiKey);
     setPersonaClient(client);
 
