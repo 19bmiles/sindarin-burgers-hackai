@@ -5,8 +5,7 @@ Welcome to the Sindarin Burgers project for HackAI! In this workshop, you'll enh
 ## Project Goals
 
 - Specify drink sizes
-- Handle dietary restrictions (e.g., gluten-free options)
-- Add and remove toppings from burgers
+- Add and remove toppings from burgers (including Gluten-free options)
 
 ## Prerequisites
 
@@ -215,113 +214,15 @@ Update `src/components/ItemSection.jsx`:
 - Check that the `initialDrinks` state is correctly set using the new structure.
 - Verify that the AI model is trained to recognize and process size-related commands for drinks.
 
+### 2. Implementing Toppings and Gluten-Free Options
 
-### 2. Adding Gluten-Free Options
-
-Next, we'll add gluten-free options for our main items. This feature caters to customers with gluten sensitivities or celiac disease, making our menu more inclusive.
-
-Update `src/App.jsx`:
-
-```javascript
-// Add gluten-free option to itemsMap
-mains: {
-  // ... existing main items ...
-  gluten_free_bun: { name: 'Gluten-Free Bun', price: 1.50 },
-},
-
-// Add new function to handle gluten-free options
-const handleGlutenFreeOption = (mainId, isGlutenFree) => {
-  const currentMain = findMainByType(mainId);
-  if (currentMain && currentMain.quantity > 0) {
-    // Update the state of the specific main item
-    updateMainsState([{
-      id: mainId,
-      isGlutenFree: isGlutenFree
-    }]);
-  }
-};
-
-// Update calculateTotalPrice function to include gluten-free pricing
-const calculateTotalPrice = useCallback(() => {
-  const mainTotal = mains.reduce((total, item) => {
-    let itemTotal = item.quantity * item.price;
-    // Add the price of the gluten-free bun if the option is selected
-    if (item.isGlutenFree) {
-      itemTotal += itemsMap.mains.gluten_free_bun.price * item.quantity;
-    }
-    return total + itemTotal;
-  }, 0);
-  // ... rest of the function ...
-}, [mains, sides, drinks]);
-```
-
-Update `src/persona/actions.js`:
-
-```javascript
-"mains": {
-  "type": "array",
-  "items": {
-    "type": "object",
-    "properties": {
-      // ... existing properties ...
-      "isGlutenFree": {
-        "type": "boolean"
-      }
-    },
-    "required": ["main_type", "quantity"]
-  }
-}
-```
-
-Update `src/components/Persona.jsx`:
-
-```javascript
-// Modify handleAction function to process gluten-free options
-if (main.isGlutenFree !== undefined) {
-  updateMainsState([{ id: main.main_type, isGlutenFree: main.isGlutenFree }]);
-}
-```
-
-Update `src/components/ItemSection.jsx`:
-
-```jsx
-{
-  item.isGlutenFree && (
-    <p
-      style={{
-        margin: "4px 0 0 0",
-        fontSize: "12px",
-        color: "#666",
-        fontWeight: "bold",
-      }}
-    >
-      Gluten-Free
-    </p>
-  );
-}
-```
-
-#### Testing Your Changes
-
-1. Run the application and open it in your browser.
-2. Try ordering a main item with a gluten-free bun using voice commands or text input.
-3. Check that the order summary correctly displays the gluten-free option and updates the total price.
-4. Verify that you can add and remove the gluten-free option for different main items.
-
-#### Common Pitfalls
-
-- Ensure that the `isGlutenFree` property is correctly initialized for all main items.
-- Verify that the price calculation for gluten-free options is correct in the `calculateTotalPrice` function.
-- Check that the AI model is trained to recognize and process gluten-free related commands.
-
-### 3. Adding and Removing Toppings
-
-Lastly, we'll implement the ability to add and remove toppings from main items. This feature allows for greater customization of orders, enhancing the overall user experience.
+In this section, we'll add the ability to customize main items with toppings, including a gluten-free bun option. This feature allows customers to personalize their orders and cater to dietary restrictions.
 
 Update `src/App.jsx`:
 
+1. Add toppings to the `itemsMap`:
+
 ```javascript
-// Add toppings to itemsMap
 mains: {
   // ... existing main items ...
   toppings: {
@@ -329,103 +230,252 @@ mains: {
     tomato: { name: 'Tomato', price: 0.50 },
     cheese: { name: 'Cheese', price: 1.00 },
     bacon: { name: 'Bacon', price: 1.50 },
+    gluten_free_bun: { name: 'Gluten-Free Bun', price: 2.00 },
   },
 },
+```
 
-// Add new functions to handle toppings
-const handleAddTopping = (mainId, topping) => {
-  const currentMain = findMainByType(mainId);
-  if (currentMain && currentMain.quantity > 0) {
-    // Add the topping if it's not already present
-    updateMainsState([{
-      id: mainId,
-      toppings: [...new Set([...currentMain.toppings, topping])]
-    }]);
-  }
+2. Modify the initial state for mains to include toppings:
+
+```javascript
+const [mains, setMains] = useState(initialMains.map(main => ({
+  ...main,
+  toppings: []
+})));
+```
+
+3. Add new functions to handle toppings:
+
+```javascript
+const findMainByType = (main_type) => {
+  return mains.find(main => main.id === main_type);
 };
 
-const handleRemoveTopping = (mainId, topping) => {
-  const currentMain = findMainByType(mainId);
-  if (currentMain && currentMain.quantity > 0) {
-    // Remove the specified topping
-    updateMainsState([{
-      id: mainId,
-      toppings: currentMain.toppings.filter(t => t !== topping)
-    }]);
-  }
+const getOrderState = () => {
+  return {
+    mains: mains.filter(item => item.quantity > 0),
+    sides: sides.filter(item => item.quantity > 0),
+    drinks: drinks.filter(item => item.quantity > 0)
+  };
 };
 
-// Update calculateTotalPrice function to include topping prices
+const updateMainsState = (updates) => {
+  setMains(prevMains => {
+    return prevMains.map(main => {
+      const update = updates.find(u => u.id === main.id);
+      if (update) {
+        return {
+          ...main,
+          quantity: update.quantity !== undefined ? update.quantity : main.quantity,
+          toppings: update.toppings !== undefined ? update.toppings : main.toppings
+        };
+      }
+      return main;
+    });
+  });
+};
+```
+
+4. Update `handleAddMains` and `handleSubtractMains`:
+
+```javascript
+const handleAddMains = (main_type, quantity) => {
+  updateMainsState([{ id: main_type, quantity }]);
+};
+
+const handleSubtractMains = (main_type, quantity) => {
+  const currentMain = findMainByType(main_type);
+  if (currentMain) {
+    updateMainsState([{ id: main_type, quantity: Math.max(0, currentMain.quantity - quantity) }]);
+  }
+};
+```
+
+5. Update `calculateTotalPrice` to include toppings:
+
+```javascript
 const calculateTotalPrice = useCallback(() => {
   const mainTotal = mains.reduce((total, item) => {
     let itemTotal = item.quantity * item.price;
-    // Add the price of each topping
-    itemTotal += item.toppings.reduce((toppingTotal, topping) =>
+    itemTotal += item.toppings.reduce((toppingTotal, topping) => 
       toppingTotal + itemsMap.mains.toppings[topping].price, 0);
-    // ... (gluten-free calculation) ...
     return total + itemTotal;
   }, 0);
-  // ... rest of the function ...
+  const sidesTotal = sides.reduce((total, item) => total + item.quantity * item.price, 0);
+  const drinksTotal = drinks.reduce((total, item) => total + item.quantity * item.price, 0);
+  return mainTotal + sidesTotal + drinksTotal;
 }, [mains, sides, drinks]);
 ```
 
-Update `src/components/Persona.jsx`:
+6. Add the new functions to the OrderContext:
 
 ```javascript
-// Modify handleAction function to process toppings
-if (main.toppings) {
-  const currentMain = findMainByType(main.main_type);
-  if (currentMain) {
-    const newToppings = [...currentMain.toppings];
-    main.toppings.forEach((topping) => {
-      if (topping.action === "add" && !newToppings.includes(topping.topping)) {
-        newToppings.push(topping.topping);
-      } else if (topping.action === "remove") {
-        const index = newToppings.indexOf(topping.topping);
-        if (index > -1) {
-          newToppings.splice(index, 1);
-        }
-      }
-    });
-    updateMainsState([{ id: main.main_type, toppings: newToppings }]);
-  }
-}
+const value = {
+  // ... existing values ...
+  findMainByType,
+  getOrderState,
+  updateMainsState,
+};
 ```
 
 Update `src/components/ItemSection.jsx`:
 
+Add a section to display toppings right after the "in cart" paragraph:
+
 ```jsx
-{
-  item.toppings && item.toppings.length > 0 && (
-    <p
-      style={{
-        margin: "4px 0 0 0",
-        fontSize: "12px",
-        color: "#666",
-      }}
-    >
-      Toppings: {item.toppings.join(", ")}
-    </p>
-  );
+<p style={{ 
+  margin: 0, 
+  fontSize: "14px", 
+  color: "#666",
+  display: "flex",
+  alignItems: "center",
+}}>
+  <span style={{
+    background: "#f0f0f0",
+    borderRadius: "50%",
+    width: "24px",
+    height: "24px",
+    display: "inline-flex",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: "8px",
+    fontWeight: "bold",
+    color: "#333"
+  }}>
+    {item.quantity}
+  </span>
+  in cart
+</p>
+{item.toppings && item.toppings.length > 0 && (
+  <p style={{ 
+    margin: "4px 0 0 0", 
+    fontSize: "12px", 
+    color: "#666",
+  }}>
+    Toppings: {item.toppings.join(', ')}
+  </p>
+)}
+```
+
+Update `src/components/Persona.jsx`:
+
+1. Update the context import to include the new functions:
+
+```javascript
+const { 
+  mains, 
+  sides, 
+  drinks,
+  totalPrice,
+  handleAddMains,
+  handleSubtractMains,
+  handleAddSides,
+  handleSubtractSides,
+  handleAddDrinks,
+  handleSubtractDrinks,
+  updateMainsState,
+  findMainByType,
+  getOrderState,
+  isPersonaClientStarted,
+} = useContext(OrderContext);
+```
+
+2. Modify the `handleAction` function to process toppings:
+
+```javascript
+const handleAction = useCallback((action) => {
+  console.log('actions emitted', action);
+  
+  const update_order = action.update_order || action;
+
+  if (update_order.mains) {
+    update_order.mains.forEach(main => {
+      if (main.quantity !== undefined) {
+        if (main.quantity >= 0) {
+          handleAddMains(main.main_type, main.quantity);
+        } else {
+          handleSubtractMains(main.main_type, Math.abs(main.quantity));
+        }
+      }
+      
+      if (main.toppings) {
+        const currentMain = findMainByType(main.main_type);
+        if (currentMain) {
+          const newToppings = [...currentMain.toppings];
+          main.toppings.forEach(topping => {
+            if (topping.action === 'add' && !newToppings.includes(topping.topping)) {
+              newToppings.push(topping.topping);
+            } else if (topping.action === 'remove') {
+              const index = newToppings.indexOf(topping.topping);
+              if (index > -1) {
+                newToppings.splice(index, 1);
+              }
+            }
+          });
+          updateMainsState([{ id: main.main_type, toppings: newToppings }]);
+        }
+      }
+    });
+  }
+
+  // ... rest of the function ...
+}, [handleAddMains, handleSubtractMains, updateMainsState, handleAddSides, handleSubtractSides, 
+    handleAddDrinks, handleSubtractDrinks, findMainByType, getOrderState]);
+```
+
+Update `src/persona/actions.js`:
+
+Add toppings to the mains schema:
+
+```javascript
+"mains": {
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "main_type": {
+        "type": "string",
+        "enum": ["classic", "cheese", "veggie", "bacon", "double_classic", "double_cheese", "double_veggie", "double_bacon"]
+      },
+      "quantity": {
+        "type": "integer"
+      },
+      "toppings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "topping": {
+              "type": "string",
+              "enum": ["lettuce", "tomato", "cheese", "bacon", "gluten_free_bun"]
+            },
+            "action": {
+              "type": "string",
+              "enum": ["add", "remove"]
+            }
+          },
+          "required": ["topping", "action"]
+        }
+      }
+    },
+    "required": ["main_type", "quantity"]
+  }
 }
 ```
 
 #### Testing Your Changes
-
-1. Start your development server and open the application in your browser.
-2. Try adding different toppings to a main item using voice commands or text input.
-3. Attempt to remove toppings from an item that already has toppings.
-4. Verify that the order summary correctly displays the added toppings and updates the total price.
-5. Check that you can add and remove multiple toppings from different main items.
+1. Start your development server (`npm run dev`).
+2. Open the application in your browser.
+3. Try ordering main items with different toppings, including the gluten-free bun option.
+4. Verify that the order summary correctly displays the added toppings and updates the total price accordingly.
+5. Test adding and removing toppings from existing items in the order.
 
 #### Common Pitfalls
-
 - Ensure that the `toppings` array is properly initialized for each main item.
 - Verify that the price calculation for toppings is correct in the `calculateTotalPrice` function.
 - Check for potential issues with duplicate toppings being added.
 - Make sure the AI model is trained to recognize and process topping-related commands, including both additions and removals.
-
-Remember to test each feature thoroughly as you implement it. If you encounter any issues, refer back to the code and ensure all components are correctly updated and connected.
+- Test edge cases, such as trying to add toppings to items that aren't in the order, or removing non-existent toppings.
 
 ## Testing and Debugging
 
