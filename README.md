@@ -20,8 +20,8 @@ Welcome to the Sindarin Burgers project for HackAI! In this workshop, you'll enh
 1. Clone the repository:
 
    ```
-   git clone [REPOSITORY_URL]
-   cd sindarin-burgers
+   git clone https://github.com/19bmiles/sindarin-burgers-hackai.git
+   cd sindarin-burgers-hackai
    ```
 
 2. Install dependencies:
