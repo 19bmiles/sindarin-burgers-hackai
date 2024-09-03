@@ -25,6 +25,13 @@ const itemsMap = {
     double_veggie: { name: 'Double Veggie Burger', image: doubleBurgerImg, price: 9.99 },
     double_bacon: { name: 'Double Bacon Burger', image: doubleBurgerImg, price: 10.99 },
     hot_dog: { name: 'Hot Dog', image: hotdogImg, price: 4.99 },
+    toppings: {
+      lettuce: { name: 'Lettuce', price: 0.50 },
+      tomato: { name: 'Tomato', price: 0.50 },
+      cheese: { name: 'Cheese', price: 1.00 },
+      bacon: { name: 'Bacon', price: 1.50 },
+      gluten_free_bun: { name: 'Gluten-Free Bun', price: 2.00 },
+    },
   },
   sides: {
     fries: {
@@ -126,11 +133,42 @@ function App() {
       quantity: 0
     }))
   ); 
-  const [mains, setMains] = useState(initialMains);
+  const [mains, setMains] = useState(initialMains.map(main => ({
+    ...main,
+    toppings: []
+  })));
   const [sides, setSides] = useState(initialSides);
   const [drinks, setDrinks] = useState(initialDrinks);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isPersonaClientStarted, setIsPersonaClientStarted] = useState(false);
+
+  const findMainByType = (main_type) => {
+    return mains.find(main => main.id === main_type);
+  };
+  
+  const getOrderState = () => {
+    return {
+      mains: mains.filter(item => item.quantity > 0),
+      sides: sides.filter(item => item.quantity > 0),
+      drinks: drinks.filter(item => item.quantity > 0)
+    };
+  };
+  
+  const updateMainsState = (updates) => {
+    setMains(prevMains => {
+      return prevMains.map(main => {
+        const update = updates.find(u => u.id === main.id);
+        if (update) {
+          return {
+            ...main,
+            quantity: update.quantity !== undefined ? update.quantity : main.quantity,
+            toppings: update.toppings !== undefined ? update.toppings : main.toppings
+          };
+        }
+        return main;
+      });
+    });
+  };
 
   const updateItemQuantity = (items, setItems, itemId, size, quantity) => {
     const newItems = [...items];
@@ -146,11 +184,14 @@ function App() {
   };
 
   const handleAddMains = (main_type, quantity) => {
-    updateItemQuantity(mains, setMains, main_type, null, quantity);
+    updateMainsState([{ id: main_type, quantity }]);
   };
-
+  
   const handleSubtractMains = (main_type, quantity) => {
-    updateItemQuantity(mains, setMains, main_type, null, -quantity);
+    const currentMain = findMainByType(main_type);
+    if (currentMain) {
+      updateMainsState([{ id: main_type, quantity: Math.max(0, currentMain.quantity - quantity) }]);
+    }
   };
 
   const handleAddSides = (side_type, size, quantity) => {
@@ -168,8 +209,14 @@ function App() {
   const handleSubtractDrinks = (drink_type, size, quantity) => {
     updateItemQuantity(drinks, setDrinks, drink_type, size, -quantity);
   };
+
   const calculateTotalPrice = useCallback(() => {
-    const mainTotal = mains.reduce((total, item) => total + item.quantity * item.price, 0);
+    const mainTotal = mains.reduce((total, item) => {
+      let itemTotal = item.quantity * item.price;
+      itemTotal += item.toppings.reduce((toppingTotal, topping) => 
+        toppingTotal + itemsMap.mains.toppings[topping].price, 0);
+      return total + itemTotal;
+    }, 0);
     const sidesTotal = sides.reduce((total, item) => total + item.quantity * item.price, 0);
     const drinksTotal = drinks.reduce((total, item) => total + item.quantity * item.price, 0);
     return mainTotal + sidesTotal + drinksTotal;
@@ -206,7 +253,10 @@ function App() {
     handleAddDrinks,
     handleSubtractDrinks,
     totalPrice,
-    isPersonaClientStarted
+    isPersonaClientStarted,
+    findMainByType,
+    getOrderState,
+    updateMainsState,
   }
   console.log('starting up...')
   return (

@@ -23,10 +23,27 @@ const actions = {
             "properties": {
               "main_type": {
                 "type": "string",
-                "enum": ["classic", "cheese", "veggie", "bacon", "double_classic", "double_cheese", "double_veggie", "double_bacon", "hot_dog"]
+                "enum": ["classic", "cheese", "veggie", "bacon", "double_classic", "double_cheese", "double_veggie", "double_bacon"]
               },
               "quantity": {
                 "type": "integer"
+              },
+              "toppings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "topping": {
+                      "type": "string",
+                      "enum": ["lettuce", "tomato", "cheese", "bacon", "gluten_free_bun"]
+                    },
+                    "action": {
+                      "type": "string",
+                      "enum": ["add", "remove"]
+                    }
+                  },
+                  "required": ["topping", "action"]
+                }
               }
             },
             "required": ["main_type", "quantity"]

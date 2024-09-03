@@ -121,6 +121,15 @@ const ItemSection = ({ type }) => {
                   </span>
                   in cart
                 </p>
+                {item.toppings && item.toppings.length > 0 && (
+                  <p style={{ 
+                    margin: "4px 0 0 0", 
+                    fontSize: "12px", 
+                    color: "#666",
+                  }}>
+                    Toppings: {item.toppings.join(', ')}
+                  </p>
+                )}
               </div>
             </motion.div>
           ))}

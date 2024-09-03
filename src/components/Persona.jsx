@@ -18,7 +18,10 @@ const PersonaComponent = ({ init }) => {
     handleSubtractSides,
     handleAddDrinks,
     handleSubtractDrinks,
-    isPersonaClientStarted
+    isPersonaClientStarted, 
+    updateMainsState,
+    findMainByType,
+    getOrderState
   } = useContext(OrderContext);
 
   const actionHandlerRef = useRef(null);
@@ -76,19 +79,39 @@ const PersonaComponent = ({ init }) => {
   const handleAction = useCallback((action) => {
     console.log('actions emitted', action);
     
-    const { update_order } = action;
+    const update_order = action.update_order || action;
 
-    if (update_order) {
-      if (update_order.mains) {
-        update_order.mains.forEach(main => {
-          if (main.quantity > 0) {
+    if (update_order.mains) {
+      update_order.mains.forEach(main => {
+        if (main.quantity !== undefined) {
+          if (main.quantity >= 0) {
             handleAddMains(main.main_type, main.quantity);
           } else {
             handleSubtractMains(main.main_type, Math.abs(main.quantity));
           }
-        });
-      }
+        }
+        
+        if (main.toppings) {
+          const currentMain = findMainByType(main.main_type);
+          if (currentMain) {
+            const newToppings = [...currentMain.toppings];
+            main.toppings.forEach(topping => {
+              if (topping.action === 'add' && !newToppings.includes(topping.topping)) {
+                newToppings.push(topping.topping);
+              } else if (topping.action === 'remove') {
+                const index = newToppings.indexOf(topping.topping);
+                if (index > -1) {
+                  newToppings.splice(index, 1);
+                }
+              }
+            });
+            updateMainsState([{ id: main.main_type, toppings: newToppings }]);
+          }
+        }
+      });
+    }
 
+    if (update_order) {
       if (update_order.sides) {
         update_order.sides.forEach(side => {
           if (side.quantity > 0) {
@@ -109,7 +132,7 @@ const PersonaComponent = ({ init }) => {
         });
       }
     }
-  }, [handleAddMains, handleSubtractMains, handleAddSides, handleSubtractSides, handleAddDrinks, handleSubtractDrinks]);
+  }, [handleAddMains, handleSubtractMains, updateMainsState, handleAddSides, handleSubtractSides, handleAddDrinks, handleSubtractDrinks, findMainByType, getOrderState]);
   useEffect(() => {
     if (isClientLoaded && !actionHandlerRef.current) {
       actionHandlerRef.current = handleAction;
