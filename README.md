@@ -31,7 +31,7 @@ Welcome to the Sindarin Burgers project for HackAI! In this workshop, you'll enh
 
 3. Create a Sindarin account:
 
-   - Go to [Sindarin's website]
+   - Go to [[Sindarin's website]](https://www.sindarin.tech/)
    - Sign up for an account
    - Create a new project and obtain your API key
 
